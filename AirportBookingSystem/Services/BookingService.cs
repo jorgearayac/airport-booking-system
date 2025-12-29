@@ -1,0 +1,60 @@
+public class BookingService
+{
+    private const string BookingDataFile = "Data/bookings.json";
+    private readonly FlightService _flightService;
+
+    public BookingService(FlightService flightService)
+    {
+        _flightService = flightService;
+    }
+
+    public List<Booking> GetAllBookings()
+    {
+        return FileStorage.LoadData<Booking>(BookingDataFile);
+    }
+
+    public Booking CreateBooking(
+        Guid flightId,
+        string passengerName,
+        FlightClass flightClass
+    )
+    {
+        var flights = _flightService.GetAllFlights();
+        var flight = flights.FirstOrDefault(f => f.Id == flightId);
+
+        if (flight == null)
+            throw new InvalidOperationException("Flight not found");
+
+        var finalPrice = PricingService.CalculateFinalPrice(
+            flight.BasePrice,
+            flightClass
+        );
+
+        var booking = new Booking
+        {
+            PassengerName = passengerName,
+            FlightId = flight.Id,
+            Class = flightClass,
+            FinalPrice = finalPrice
+        };
+
+        var bookings = GetAllBookings();
+        bookings.Add(booking);
+
+        FileStorage.SaveData(BookingDataFile, bookings);
+
+        return booking;
+    }
+
+    public void CancelBooking(Guid bookingId)
+    {
+        var bookings = GetAllBookings();
+        var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+
+        if (booking == null)
+            throw new InvalidOperationException("Booking not found");
+
+        bookings.Remove(booking);
+        FileStorage.SaveData(BookingDataFile, bookings);
+    }
+}
