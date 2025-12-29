@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "Id": "a0abf196-42c9-4d8a-8940-c49ede62c159",
+    "PassengerName": "Jorge",
+    "FlightId": "00000000-0000-0000-0000-000000000001",
+    "Class": 1,
+    "FinalPrice": 450.0
+  }
+]
