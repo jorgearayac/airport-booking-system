@@ -57,4 +57,13 @@ public class BookingService
         bookings.Remove(booking);
         FileStorage.SaveData(BookingDataFile, bookings);
     }
+
+    public List<Booking> GetBookingsByPassenger(string passengerName)
+    {
+        var bookings = GetAllBookings();
+        
+        return bookings
+            .Where(b => b.PassengerName?.Equals(passengerName, StringComparison.OrdinalIgnoreCase) == true)
+            .ToList();
+    }
 }

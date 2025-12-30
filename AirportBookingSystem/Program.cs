@@ -8,6 +8,37 @@
         Console.WriteLine("==== Airport Ticket Booking System ====");
         Console.WriteLine();
 
+        while (true)
+        {
+            Console.WriteLine(" == Passenger Menu == ");
+            Console.WriteLine("1. Book a Flight");
+            Console.WriteLine("2. View my Bookings");
+            Console.WriteLine("0. Exit");
+            Console.Write("Select an option: ");
+            
+            var choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    BookFlight(flightService, bookingService);
+                    break;
+                case "2":
+                    ViewBookings(bookingService);
+                    break;
+                case "0":
+                    Console.WriteLine("Exiting the system. Goodbye!");
+                    break;
+                default:
+                    Console.WriteLine("Invalid option, please try again.");
+                    break;
+            }
+        }
+    }
+
+    // BOOK FLIGHT
+    static void BookFlight(FlightService flightService, BookingService bookingService)
+    {
         // List flights
         var flights = flightService.GetAllFlights();
 
@@ -70,6 +101,35 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error creating booking: {ex.Message}");
+        }
+    }
+
+    // New: VIEW BOOKINGS
+    static void ViewBookings(BookingService bookingService)
+    {
+        Console.Write("Enter Passenger Name: ");
+        var passengerName = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(passengerName))
+        {
+            Console.WriteLine("Passenger name cannot be empty.");
+            return;
+        }
+
+        var bookings = bookingService.GetBookingsByPassenger(passengerName);
+        
+        if (bookings.Count == 0)
+        {
+            Console.WriteLine("No bookings found for this passenger.");
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine($"Bookings for {passengerName}:");
+
+        foreach (var booking in bookings)
+        {
+            Console.WriteLine($"Booking ID: {booking.Id} | Flight ID: {booking.FlightId} | Class: {booking.Class} | Final Price: {booking.FinalPrice}");
         }
     }
 }
