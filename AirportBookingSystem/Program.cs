@@ -13,6 +13,7 @@
             Console.WriteLine(" == Passenger Menu == ");
             Console.WriteLine("1. Book a Flight");
             Console.WriteLine("2. View my Bookings");
+            Console.WriteLine("3. Cancel a Booking");
             Console.WriteLine("0. Exit");
             Console.Write("Select an option: ");
             
@@ -25,6 +26,9 @@
                     break;
                 case "2":
                     ViewBookings(bookingService);
+                    break;
+                case "3":
+                    CancelBookingUI(bookingService);
                     break;
                 case "0":
                     Console.WriteLine("Exiting the system. Goodbye!");
@@ -72,13 +76,22 @@
         Console.Write("Choice: ");
         var classInput = Console.ReadLine();
         
-        FlightClass flightClass = classInput switch
+        FlightClass flightClass;
+        switch (classInput)
         {
-            "1" => FlightClass.Economy,
-            "2" => FlightClass.Business,
-            "3" => FlightClass.FirstClass,
-            _ => throw new InvalidOperationException("Invalid class selection")
-        };
+            case "1":
+                flightClass = FlightClass.Economy;
+                break;
+            case "2":
+                flightClass = FlightClass.Business;
+                break;
+            case "3":
+                flightClass = FlightClass.FirstClass;
+                break;
+            default:
+                Console.WriteLine("Invalid class selection T.T");
+                return;
+        }
 
         // Ask for Passenger Name
         Console.Write("Enter Passenger Name: ");
@@ -93,7 +106,7 @@
         // Create Booking
         try
         {
-            var booking = bookingService.CreateBooking(flightId, passengerName!, flightClass);
+            var booking = bookingService.CreateBooking(flightId, passengerName, flightClass);
             Console.WriteLine("Booking successful!");
             Console.WriteLine($"Booking ID: {booking.Id} | Passenger: {booking.PassengerName} | Final Price: {booking.FinalPrice}");
             Console.WriteLine("Thank you for booking with us! :)");
@@ -130,6 +143,29 @@
         foreach (var booking in bookings)
         {
             Console.WriteLine($"Booking ID: {booking.Id} | Flight ID: {booking.FlightId} | Class: {booking.Class} | Final Price: {booking.FinalPrice}");
+        }
+    }
+    
+    // New: CANCEL BOOKING
+    static void CancelBookingUI(BookingService bookingService)
+    {
+        Console.Write("Enter Booking ID to cancel: ");
+        var bookingIdInput = Console.ReadLine();
+
+        if (!Guid.TryParse(bookingIdInput, out var bookingId))
+        {
+            Console.WriteLine("Invalid Booking ID, try another format");
+            return;
+        }
+
+        var success = bookingService.CancelBooking(bookingId);
+        if (success)
+        {
+            Console.WriteLine("Booking cancelled successfully");
+        }
+        else
+        {
+            Console.WriteLine("Booking not found");
         }
     }
 }

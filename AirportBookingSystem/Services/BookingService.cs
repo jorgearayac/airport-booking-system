@@ -46,16 +46,17 @@ public class BookingService
         return booking;
     }
 
-    public void CancelBooking(Guid bookingId)
+    public bool CancelBooking(Guid bookingId)
     {
         var bookings = GetAllBookings();
         var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
 
         if (booking == null)
-            throw new InvalidOperationException("Booking not found");
+            return false;
 
         bookings.Remove(booking);
         FileStorage.SaveData(BookingDataFile, bookings);
+        return true;
     }
 
     public List<Booking> GetBookingsByPassenger(string passengerName)
