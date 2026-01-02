@@ -32,7 +32,7 @@
                     CancelBookingUI(bookingService);
                     break;
                 case "4":
-                    Console.WriteLine("Modify Booking feature is under development. Stay tuned!");
+                    ModifyBookingUI(bookingService, flightService);
                     break;
                 case "0":
                     Console.WriteLine("Exiting the system. Goodbye!");
@@ -41,6 +41,10 @@
                     Console.WriteLine("Invalid option, please try again.");
                     break;
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Press ENTER to return to menu...");
+            Console.ReadLine();
         }
     }
 
@@ -153,9 +157,18 @@
         }
     }
 
-    // MODIFY BOOKING - Placeholder Method
+    // MODIFY BOOKING
     static void ModifyBookingUI(BookingService bookingService, FlightService flightService)
     {
+        Console.WriteLine("Enter your passenger name: ");
+        var passengerName = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(passengerName))
+        {
+            Console.WriteLine("Passenger name cannot be empty.");
+            return;
+        }
+
         Console.WriteLine("Enter Booking ID to modify: ");
         var bookingIdInput = Console.ReadLine();
 
@@ -211,6 +224,7 @@
         {
             var updatedBooking = bookingService.ModifyBooking(
                 bookingId,
+                passengerName,
                 newFlightId,
                 newFlightClass,
                 newPassengerName

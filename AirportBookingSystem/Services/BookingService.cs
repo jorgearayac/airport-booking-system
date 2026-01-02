@@ -68,7 +68,7 @@ public class BookingService
             .ToList();
     }
 
-    public Booking ModifyBooking(Guid bookingId, Guid? newFlightId, FlightClass? newClass, string? newPassengerName)
+    public Booking ModifyBooking(Guid bookingId, string passengerName, Guid? newFlightId, FlightClass? newClass, string? newPassengerName)
     {
         var bookings = GetAllBookings();
         var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
@@ -76,6 +76,9 @@ public class BookingService
         // Validate booking existence
         if (booking == null)
             throw new InvalidOperationException("Booking not found");
+
+        if (!booking.PassengerName!.Equals(passengerName, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Passenger name does not match the booking record\nYou can only modify your own bookings");
 
         // Update flight if newFlightId is provided
         if (newFlightId.HasValue)
@@ -114,4 +117,7 @@ public class BookingService
         FileStorage.SaveData(BookingDataFile, bookings);
         return booking;
     }
+
+    // TO DO:
+    // public Booking ModifyBookingAsManager(Guid bookingId, Guid? newFlightId, FlightClass? newClass, string? newPassengerName)
 }
