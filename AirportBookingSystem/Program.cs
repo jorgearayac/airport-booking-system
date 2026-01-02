@@ -14,6 +14,7 @@
             Console.WriteLine("1. Book a Flight");
             Console.WriteLine("2. View my Bookings");
             Console.WriteLine("3. Cancel a Booking");
+            Console.WriteLine("4. Modify a Booking");
             Console.WriteLine("0. Exit");
             Console.Write("Select an option: ");
             
@@ -29,6 +30,9 @@
                     break;
                 case "3":
                     CancelBookingUI(bookingService);
+                    break;
+                case "4":
+                    Console.WriteLine("Modify Booking feature is under development. Stay tuned!");
                     break;
                 case "0":
                     Console.WriteLine("Exiting the system. Goodbye!");
@@ -71,27 +75,7 @@
         }
 
         // Ask for Flight Class
-        Console.WriteLine("Enter Flight Class: ");
-        Console.WriteLine("1. Economy | 2. Business | 3. FirstClass");
-        Console.Write("Choice: ");
-        var classInput = Console.ReadLine();
-        
-        FlightClass flightClass;
-        switch (classInput)
-        {
-            case "1":
-                flightClass = FlightClass.Economy;
-                break;
-            case "2":
-                flightClass = FlightClass.Business;
-                break;
-            case "3":
-                flightClass = FlightClass.FirstClass;
-                break;
-            default:
-                Console.WriteLine("Invalid class selection T.T");
-                return;
-        }
+        var flightClass = AskForFlightClass();
 
         // Ask for Passenger Name
         Console.Write("Enter Passenger Name: ");
@@ -117,7 +101,7 @@
         }
     }
 
-    // New: VIEW BOOKINGS
+    // VIEW BOOKINGS
     static void ViewBookings(BookingService bookingService)
     {
         Console.Write("Enter Passenger Name: ");
@@ -146,7 +130,7 @@
         }
     }
     
-    // New: CANCEL BOOKING
+    // CANCEL BOOKING
     static void CancelBookingUI(BookingService bookingService)
     {
         Console.Write("Enter Booking ID to cancel: ");
@@ -166,6 +150,101 @@
         else
         {
             Console.WriteLine("Booking not found");
+        }
+    }
+
+    // MODIFY BOOKING - Placeholder Method
+    static void ModifyBookingUI(BookingService bookingService, FlightService flightService)
+    {
+        Console.WriteLine("Enter Booking ID to modify: ");
+        var bookingIdInput = Console.ReadLine();
+
+        if (!Guid.TryParse(bookingIdInput, out var bookingId))
+        {
+            Console.WriteLine("Invalid Booking ID, try another format");
+            return;
+        }
+
+        Guid? newFlightId = null;
+        FlightClass? newFlightClass = null;
+        string? newPassengerName = null;
+
+        Console.WriteLine("Change Passenger? (y/n): ");
+
+        if (Console.ReadLine() == "y")
+        {
+            Console.WriteLine("New passenger name: ");
+            newPassengerName = Console.ReadLine();
+        }
+
+        Console.WriteLine("Change Flight? (y/n): ");
+
+        if (Console.ReadLine() == "y")
+        {
+            var flights = flightService.GetAllFlights();
+            Console.WriteLine("Available Flights:");
+            foreach (var flight in flights)
+            {
+                Console.WriteLine($"{flight.Id} | {flight.DepartureCountry} to {flight.DestinationCountry} at {flight.DepartureDate} | Base Price: {flight.BasePrice}");
+            }
+
+            Console.WriteLine("Enter new Flight ID: ");
+            var newFlightIdInput = Console.ReadLine();
+
+            if (!Guid.TryParse(newFlightIdInput, out var parsedFlightId))
+            {
+                Console.WriteLine("Invalid Flight ID.");
+                return;
+            }
+
+            newFlightId = parsedFlightId;
+        }
+
+        Console.WriteLine("Change Class? (y/n): ");
+
+        if (Console.ReadLine() == "y")
+        {
+            newFlightClass = AskForFlightClass();
+        }
+
+        try
+        {
+            var updatedBooking = bookingService.ModifyBooking(
+                bookingId,
+                newFlightId,
+                newFlightClass,
+                newPassengerName
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    // ASK FOR FLIGHT CLASS - Extracted Method
+    static FlightClass AskForFlightClass()
+    {
+        while (true)
+        {
+            Console.WriteLine("Enter Flight Class: ");
+            Console.WriteLine("1. Economy | 2. Business | 3. FirstClass");
+            Console.Write("Choice: ");
+            
+            var classInput = Console.ReadLine();
+            
+            switch (classInput)
+            {
+                case "1":
+                    return FlightClass.Economy;
+                case "2":
+                    return FlightClass.Business;
+                case "3":
+                    return FlightClass.FirstClass;
+                default:
+                    Console.WriteLine("Invalid class selection. Please try again");
+                    break;
+            }
         }
     }
 }
