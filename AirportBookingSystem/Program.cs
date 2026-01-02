@@ -11,11 +11,13 @@
         while (true)
         {
             Console.WriteLine(" == Passenger Menu == ");
+            Console.WriteLine();
             Console.WriteLine("1. Book a Flight");
             Console.WriteLine("2. View my Bookings");
             Console.WriteLine("3. Cancel a Booking");
             Console.WriteLine("4. Modify a Booking");
             Console.WriteLine("0. Exit");
+            Console.WriteLine();
             Console.Write("Select an option: ");
             
             var choice = Console.ReadLine();
