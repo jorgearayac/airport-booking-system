@@ -5,12 +5,13 @@ public static class ObjectValidator
     public static ValidationResult Validate(object obj)
     {
         var result = new ValidationResult();
-        var properties = obj.GetType().GetProperties();
+        var properties = obj.GetType()
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         foreach (var property in properties)
         {
             var attributes = property.GetCustomAttributes<ValidationAttribute>();
-            
+
             foreach (var attribute in attributes)
             {
                 if (!attribute.IsValid(property.GetValue(obj)))
