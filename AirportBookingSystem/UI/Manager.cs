@@ -4,7 +4,7 @@ namespace AirportBookingSystem.UI
 
     public class Manager
     {
-        public void ShowManagerMenu()
+        public void ManagerMenu(FlightService flightService, BookingService bookingService)
         {
             while (true)
             {
@@ -23,12 +23,15 @@ namespace AirportBookingSystem.UI
                 {
                     case "1":
                         // Logic to filter bookings
+                        Console.WriteLine("TODO: Filtering bookings...");
                         break;
                     case "2":
                         // Logic to import flights
+                        Console.WriteLine("TODO: Import flights...");
                         break;
                     case "3":
                         // Logic to validate
+                        Console.WriteLine("TODO: Validation metadata...");
                         break;
                     case "0":
                         return;
