@@ -118,6 +118,42 @@ public class BookingService
         return booking;
     }
 
-    // TO DO:
-    // public Booking ModifyBookingAsManager(Guid bookingId, Guid? newFlightId, FlightClass? newClass, string? newPassengerName)
+    public List<Booking> FilterBookings(BookingFilter filter)
+    {
+        var bookings = GetAllBookings();
+        var flights = _flightService.GetAllFlights();
+
+        var query = from booking in bookings
+                    join flight in flights on booking.FlightId equals flight.Id
+                    select new { booking, flight };
+
+        if (filter.MinPrice.HasValue)
+            query = query.Where(q => q.booking.FinalPrice >= filter.MinPrice.Value);
+
+        if (filter.MaxPrice.HasValue)
+            query = query.Where(q => q.booking.FinalPrice <= filter.MaxPrice.Value);
+
+        if (filter.DepartureCountry != null)
+            query = query.Where(q => q.flight.DepartureCountry == filter.DepartureCountry);
+
+        if (filter.DestinationCountry != null)
+            query = query.Where(q => q.flight.DestinationCountry == filter.DestinationCountry);
+
+        if (filter.DepartureDate.HasValue)
+            query = query.Where(q => q.flight.DepartureDate.Date == filter.DepartureDate.Value.Date);
+
+        if (filter.DepartureAirport != null)
+            query = query.Where(q => q.flight.DepartureAirport == filter.DepartureAirport);
+
+        if (filter.ArrivalAirport != null)
+            query = query.Where(q => q.flight.ArrivalAirport == filter.ArrivalAirport);
+
+        if (filter.PassengerName != null)
+            query = query.Where(q => q.booking.PassengerName!.Equals(filter.PassengerName, StringComparison.OrdinalIgnoreCase));
+
+        if (filter.Class.HasValue)
+            query = query.Where(q => q.booking.Class == filter.Class.Value);
+
+        return query.Select(q => q.booking).ToList();
+    }
 }
