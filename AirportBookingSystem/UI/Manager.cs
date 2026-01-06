@@ -12,8 +12,10 @@ namespace AirportBookingSystem.UI
                 Console.WriteLine(" == Manager Menu == ");
                 Console.WriteLine();
                 Console.WriteLine("1. Filter Bookings");
-                Console.WriteLine("2. Import Flights from CSV");
-                Console.WriteLine("3. Validate Flight Data");
+                Console.WriteLine("2. Modify Bookings");
+                Console.WriteLine("3. Cancel a Booking");
+                Console.WriteLine("4. View all Bookings");
+                Console.WriteLine("5. Import Flights");
                 Console.WriteLine("0. Exit");
                 Console.WriteLine();
                 Console.Write("Select an option: ");
@@ -23,12 +25,18 @@ namespace AirportBookingSystem.UI
                 switch (choice)
                 {
                     case "1":
-                        Console.WriteLine("TODO: Filtering bookings...");
+                        FilterBookingsUI(bookingService);
                         break;
                     case "2":
-                        Console.WriteLine("TODO: Import flights...");
+                        ModifyBookingAsManagerUI(bookingService, flightService);
                         break;
                     case "3":
+                        CancelBookingAsManagerUI(bookingService);
+                        break;
+                    case "4":
+                        ViewAllBookings(bookingService);
+                        break;
+                    case "5":
                         Console.WriteLine("TODO: Validation metadata...");
                         break;
                     case "0":
@@ -101,11 +109,148 @@ namespace AirportBookingSystem.UI
             foreach (var booking in results)
             {
                 Console.WriteLine(
-                    $"Booking ID: {booking.Id} | Passenger: {booking.PassengerName} | Class: {booking.Class} | Price: {booking.FinalPrice}"
+                    $"Booking ID: {booking.Id} | Passenger: {booking.PassengerName} | Class: {booking.Class} | Price: {booking.FinalPrice} | {departureCountry} -> {destinationCountry} | Date: {departureDate?.ToString("yyyy-MM-dd")}"
                 );
             }
             
             ConsoleHelp.Pause();
+        }
+
+        static void ModifyBookingAsManagerUI(
+            BookingService bookingService,
+            FlightService flightService)
+        {
+            Console.Write("Enter Booking ID: ");
+            if (!Guid.TryParse(Console.ReadLine(), out var bookingId))
+            {
+                Console.WriteLine("Invalid Booking ID");
+                return;
+            }
+
+            Guid? newFlightId = null;
+            FlightClass? newClass = null;
+            string? newPassengerName = null;
+
+            Console.Write("Change passenger name? (y/n): ");
+            if (Console.ReadLine() == "y")
+            {
+                Console.Write("New passenger name: ");
+                newPassengerName = Console.ReadLine();
+            }
+
+            Console.Write("Change flight? (y/n): ");
+            if (Console.ReadLine() == "y")
+            {
+                var flights = flightService.GetAllFlights();
+
+                foreach (var flight in flights)
+                {
+                    Console.WriteLine(
+                        $"{flight.Id} | {flight.DepartureCountry} → {flight.DestinationCountry} | {flight.DepartureDate}");
+                }
+
+                Console.Write("New Flight ID: ");
+                if (!Guid.TryParse(Console.ReadLine(), out var flightId))
+                {
+                    Console.WriteLine("Invalid Flight ID");
+                    return;
+                }
+
+                newFlightId = flightId;
+            }
+
+            Console.Write("Change class? (y/n): ");
+            if (Console.ReadLine() == "y")
+            {
+                newClass = AskForFlightClass();
+            }
+
+            try
+            {
+                var booking = bookingService.ModifyBookingAsManager(
+                    bookingId,
+                    newFlightId,
+                    newClass,
+                    newPassengerName
+                );
+
+                Console.WriteLine("Booking updated successfully:");
+                Console.WriteLine(
+                    $"Passenger: {booking.PassengerName} | Class: {booking.Class} | Price: {booking.FinalPrice}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        static FlightClass AskForFlightClass()
+        {
+            while (true)
+            {
+                Console.Write("Select Class (1. Economy | 2. Business | 3. FirstClass): ");
+                var classInput = Console.ReadLine();
+
+                switch (classInput)
+                {
+                    case "1":
+                        return FlightClass.Economy;
+                    case "2":
+                        return FlightClass.Business;
+                    case "3":
+                        return FlightClass.FirstClass;
+                    default:
+                        Console.WriteLine("Invalid selection. Please try again.");
+                        break;
+                }
+            }
+        }
+
+        static void CancelBookingAsManagerUI(BookingService bookingService)
+        {
+            Console.Write("Enter Booking ID to cancel: ");
+            var input = Console.ReadLine();
+
+            if (!Guid.TryParse(input, out var bookingId))
+            {
+                Console.WriteLine("Invalid Booking ID.");
+                return;
+            }
+
+            var success = bookingService.CancelBooking(bookingId);
+
+            if (success)
+            {
+                Console.WriteLine("Booking cancelled successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Booking not found.");
+            }
+        }
+
+        static void ViewAllBookings(BookingService bookingService)
+        {
+            var bookings = bookingService.GetAllBookings();
+
+            if (bookings.Count == 0)
+            {
+                Console.WriteLine("No bookings found.");
+                return;
+            }
+
+            Console.WriteLine("\n--- All Bookings ---");
+
+            foreach (var booking in bookings)
+            {
+                Console.WriteLine(
+                    $"ID: {booking.Id} | " +
+                    $"Passenger: {booking.PassengerName} | " +
+                    $"Flight: {booking.FlightId} | " +
+                    $"Price: {booking.FinalPrice} | " +
+                    $"Class: {booking.Class}"
+                );
+            }
         }
     }
 }   
