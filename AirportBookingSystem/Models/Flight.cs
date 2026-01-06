@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 public enum FlightClass
 {
     Economy,
@@ -7,6 +9,7 @@ public enum FlightClass
 
 public class Flight
 {
+    [Required]
     public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required]
@@ -25,6 +28,8 @@ public class Flight
     [Required]
     public string? ArrivalAirport { get; set; }
 
+    [Required]
+    [Range(1, double.MaxValue)]
     [PositiveNumber]
     public decimal BasePrice { get; set; }
 }

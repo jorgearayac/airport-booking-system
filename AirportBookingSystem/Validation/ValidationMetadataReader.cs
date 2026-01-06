@@ -1,34 +1,49 @@
 public static class ValidationMetadataReader
 {
-    public static Dictionary<string, List<string>> GetValidationMetadata<T>()
+    public static List<ValidationDetail> GetValidationMetadata<T>()
     {
-        var metadata = new Dictionary<string, List<string>>();
+        var result = new List<ValidationDetail>();
         var properties = typeof(T).GetProperties();
 
         foreach (var prop in properties)
         {
+            var field = new ValidationDetail()
+            {
+                PropertyName = prop.Name,
+                Type = GetFriendlyTypeName(prop.PropertyType)
+            };
+            
             var attributes = prop.GetCustomAttributes(true);
             var attrNames = new List<string>();
 
             foreach (var attr in attributes)
             {
-                attrNames.Add(attr.GetType().Name);
+                field.Constraints.Add(GetConstraintDescription(attr));
             }
 
-            metadata[prop.Name] = attrNames;
+            result.Add(field);
         }
 
-        return metadata;
+        return result;
     }
 
-    public static void PrintValidationMetadata<T>()
+    private static string GetConstraintDescription(object attribute)
     {
-        var metadata = GetValidationMetadata<T>();
-        foreach (var entry in metadata)
+        return attribute switch
         {
-            Console.WriteLine($"Property: {entry.Key}");
-            Console.WriteLine("Attributes: " + string.Join(", ", entry.Value));
-            Console.WriteLine();
-        }
+            RequiredAttribute => "Required",
+            FutureDateAttribute => "Must be in the future",
+            PositiveNumberAttribute => "Must be a positive number",
+            _ => attribute.GetType().Name
+        };
+    }
+
+    private static string GetFriendlyTypeName(Type type)
+    {
+        if (type == typeof(string)) return "Free Text";
+        if (type == typeof(DateTime)) return "Date Time";
+        if (type == typeof(decimal)) return "Decimal Number";
+
+        return type.Name;
     }
 }

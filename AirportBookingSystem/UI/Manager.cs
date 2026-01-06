@@ -16,6 +16,7 @@ namespace AirportBookingSystem.UI
                 Console.WriteLine("3. Cancel a Booking");
                 Console.WriteLine("4. View all Bookings");
                 Console.WriteLine("5. Import Flights");
+                Console.WriteLine("6. Show Flight Validation Rules");
                 Console.WriteLine("0. Exit");
                 Console.WriteLine();
                 Console.Write("Select an option: ");
@@ -37,7 +38,10 @@ namespace AirportBookingSystem.UI
                         ViewAllBookings(bookingService);
                         break;
                     case "5":
-                        Console.WriteLine("TODO: Validation metadata...");
+                        Console.WriteLine("TODO: Import Flights...");
+                        break;
+                    case "6":
+                        ShowFlightValidationRules(new FlightValidationMetadataService());
                         break;
                     case "0":
                         return;
@@ -252,5 +256,24 @@ namespace AirportBookingSystem.UI
                 );
             }
         }
+
+        static void ShowFlightValidationRules(FlightValidationMetadataService metadataService)
+        {
+            var rules = metadataService.GetValidationDetails();
+
+            Console.WriteLine("\n--- Flight Validation Rules ---");
+
+            foreach (var rule in rules)
+            {
+                Console.WriteLine($"\n{rule.PropertyName}:");
+                Console.WriteLine($"  Type: {rule.Type}");
+
+                foreach (var constraint in rule.Constraints)
+                {
+                    Console.WriteLine($"  Constraint: {constraint}");
+                }
+            }
+        }
+
     }
 }   
