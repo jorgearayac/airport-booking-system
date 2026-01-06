@@ -42,7 +42,7 @@ namespace AirportBookingSystem.UI
                         break;
                 }
 
-                Pause();
+                ConsoleHelp.Pause();
             }
         }
 
@@ -258,12 +258,6 @@ namespace AirportBookingSystem.UI
                         break;
                 }
             }
-        }
-        static void Pause()
-        {
-            Console.ReadLine();
-            Console.WriteLine("Press ENTER to return to menu...");
-            Console.ReadLine();
         }
     }
 }

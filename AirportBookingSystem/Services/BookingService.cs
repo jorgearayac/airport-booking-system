@@ -1,3 +1,5 @@
+using AirportBookingSystem.Models;
+
 public class BookingService
 {
     private const string BookingDataFile = "Data/bookings.json";
@@ -118,7 +120,16 @@ public class BookingService
         return booking;
     }
 
-    public List<Booking> FilterBookings(BookingFilter filter)
+    public List<Booking> FilterBookings(
+        string? passengerName,
+        FlightClass? flightClass,
+        decimal? minPrice,
+        decimal? maxPrice,
+        string? departureCountry,
+        string? destinationCountry,
+        string? departureAirport,
+        string? arrivalAirport,
+        DateTime? departureDate)
     {
         var bookings = GetAllBookings();
         var flights = _flightService.GetAllFlights();
@@ -127,32 +138,60 @@ public class BookingService
                     join flight in flights on booking.FlightId equals flight.Id
                     select new { booking, flight };
 
-        if (filter.MinPrice.HasValue)
-            query = query.Where(q => q.booking.FinalPrice >= filter.MinPrice.Value);
+        if (!string.IsNullOrWhiteSpace(passengerName))
+        {
+            query = query.Where(q => 
+                q.booking.PassengerName != null &&
+                q.booking.PassengerName!.Equals(passengerName, StringComparison.OrdinalIgnoreCase));
+        }
 
-        if (filter.MaxPrice.HasValue)
-            query = query.Where(q => q.booking.FinalPrice <= filter.MaxPrice.Value);
+        if (flightClass.HasValue)
+        {
+            query = query.Where(q => q.booking.Class == flightClass.Value);
+        }
 
-        if (filter.DepartureCountry != null)
-            query = query.Where(q => q.flight.DepartureCountry == filter.DepartureCountry);
+        if (minPrice.HasValue)
+        {
+            query = query.Where(q => q.booking.FinalPrice >= minPrice.Value);
+        }
 
-        if (filter.DestinationCountry != null)
-            query = query.Where(q => q.flight.DestinationCountry == filter.DestinationCountry);
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(q => q.booking.FinalPrice <= maxPrice.Value);
+        }
 
-        if (filter.DepartureDate.HasValue)
-            query = query.Where(q => q.flight.DepartureDate.Date == filter.DepartureDate.Value.Date);
+        if (!string.IsNullOrWhiteSpace(departureCountry))
+        {
+            query = query.Where(q => 
+                q.flight.DepartureCountry != null &&
+                q.flight.DepartureCountry!.Equals(departureCountry, StringComparison.OrdinalIgnoreCase));
+        }
+        
+        if (!string.IsNullOrWhiteSpace(destinationCountry))
+        {
+            query = query.Where(q => 
+                q.flight.DestinationCountry != null &&
+                q.flight.DestinationCountry!.Equals(destinationCountry, StringComparison.OrdinalIgnoreCase));
+        }
 
-        if (filter.DepartureAirport != null)
-            query = query.Where(q => q.flight.DepartureAirport == filter.DepartureAirport);
+        if (!string.IsNullOrWhiteSpace(departureAirport))
+        {
+            query = query.Where(q => 
+                q.flight.DepartureAirport != null &&
+                q.flight.DepartureAirport!.Equals(departureAirport, StringComparison.OrdinalIgnoreCase));
+        }
 
-        if (filter.ArrivalAirport != null)
-            query = query.Where(q => q.flight.ArrivalAirport == filter.ArrivalAirport);
+        if (!string.IsNullOrWhiteSpace(arrivalAirport))
+        {
+            query = query.Where(q => 
+                q.flight.ArrivalAirport != null &&
+                q.flight.ArrivalAirport!.Equals(arrivalAirport, StringComparison.OrdinalIgnoreCase));
+        }
 
-        if (filter.PassengerName != null)
-            query = query.Where(q => q.booking.PassengerName!.Equals(filter.PassengerName, StringComparison.OrdinalIgnoreCase));
-
-        if (filter.Class.HasValue)
-            query = query.Where(q => q.booking.Class == filter.Class.Value);
+        if (departureDate.HasValue)
+        {
+            query = query.Where(q => q.flight.DepartureDate.Date == departureDate.Value.Date);
+        }
 
         return query.Select(q => q.booking).ToList();
     }
