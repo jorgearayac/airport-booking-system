@@ -195,4 +195,57 @@ public class BookingService
 
         return query.Select(q => q.booking).ToList();
     }
+
+    public Booking ModifyBookingAsManager(
+        Guid bookingId,
+        Guid? newFlightId,
+        FlightClass? newClass,
+        string? newPassengerName)
+    {
+        var bookings = GetAllBookings();
+        var booking = bookings.FirstOrDefault(b => b.Id == bookingId);
+
+        if (booking == null)
+            throw new InvalidOperationException("Booking not found");
+
+        // Change flight
+        if (newFlightId.HasValue)
+        {
+            var flights = _flightService.GetAllFlights();
+            var flight = flights.FirstOrDefault(f => f.Id == newFlightId.Value);
+
+            if (flight == null)
+                throw new InvalidOperationException("Flight not found");
+
+            booking.FlightId = flight.Id;
+
+            var flightClass = newClass ?? booking.Class;
+            booking.FinalPrice =
+                PricingService.CalculateFinalPrice(flight.BasePrice, flightClass);
+        }
+
+        // Change class
+        if (newClass.HasValue)
+        {
+            var flights = _flightService.GetAllFlights();
+            var flight = flights.FirstOrDefault(f => f.Id == booking.FlightId);
+
+            if (flight == null)
+                throw new InvalidOperationException("Associated flight not found");
+
+            booking.Class = newClass.Value;
+            booking.FinalPrice =
+                PricingService.CalculateFinalPrice(flight.BasePrice, newClass.Value);
+        }
+
+        // Change passenger name
+        if (!string.IsNullOrWhiteSpace(newPassengerName))
+        {
+            booking.PassengerName = newPassengerName;
+        }
+
+        FileStorage.SaveData(BookingDataFile, bookings);
+        return booking;
+    }
+
 }
