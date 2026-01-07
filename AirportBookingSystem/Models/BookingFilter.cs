@@ -1,3 +1,5 @@
+namespace AirportBookingSystem.Models;
+
 public class BookingFilter
 {
     public Guid? FlightId { get; set; }
