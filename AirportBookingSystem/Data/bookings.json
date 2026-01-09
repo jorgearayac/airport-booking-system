@@ -1,0 +1,16 @@
+[
+  {
+    "Id": "4f8bc392-6c83-4994-a740-269e0dc8fe92",
+    "PassengerName": "Anais",
+    "FlightId": "00000000-0000-0000-0000-000000000011",
+    "Class": 2,
+    "FinalPrice": 200.0
+  },
+  {
+    "Id": "01adcdd3-7e7b-4eaa-bfca-ecae9c7d3a20",
+    "PassengerName": "Valentina",
+    "FlightId": "00000000-0000-0000-0000-000000000021",
+    "Class": 0,
+    "FinalPrice": 200
+  }
+]
