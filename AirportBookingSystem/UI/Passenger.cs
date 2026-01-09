@@ -36,7 +36,7 @@ namespace AirportBookingSystem.UI
                         break;
                     case "0":
                         Console.WriteLine("Exiting the system. Goodbye!");
-                        break;
+                        return;
                     default:
                         Console.WriteLine("Invalid option, please try again.");
                         break;
